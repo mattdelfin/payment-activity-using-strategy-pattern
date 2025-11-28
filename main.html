@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shopping Cart with Payment Authentication</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 800px;
+      margin: 25px auto;
+      padding: 0 20px;
+      line-height: 1.6;
+      color: #333;
+    }
+    
+    h2 {
+      color: #2c3e50;
+      border-bottom: 2px solid #3498db;
+      padding-bottom: 8px;
+      margin-bottom: 15px;
+    }
+    
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      padding: 20px;
+      margin-bottom: 25px;
+      border: 1px solid #eee;
+    }
+    
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 15px;
+      color: #2980b9;
+    }
+    
+    /* Product display section */
+    .products {
+      display: flex;
+      gap: 15px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+      scrollbar-width: thin;
+    }
+    
+    .product-card {
+      min-width: 180px;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      padding: 15px;
+      text-align: center;
+      background: #fafafa;
+      transition: transform 0.2s;
+    }
+    
+    .product-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .product-image {
+      width: 100%;
+      height: 120px;
+      background: #f0f4f8;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    
+    .product-image img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    
+    .product-name {
+      font-weight: 600;
+      margin: 5px 0;
+      color: #2c3e50;
+    }
+    
+    .product-price {
+      color: #e74c3c;
+      font-weight: bold;
+      margin: 8px 0;
+    }
+    
+    label {
+      display: block;
+      margin: 8px 0 5px;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+    
+    input, select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    
+    button {
+      background: #3498db;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s;
+      width: 100%;
+    }
+    
+    button:hover {
+      background: #2980b9;
+    }
+    
+    button.secondary {
+      background: #ecf0f1;
+      color: #2c3e50;
+    }
+    
+    button.secondary:hover {
+      background: #bdc3c7;
+      color: white;
+    }
+    
+    button.auth {
+      background: #27ae60;
+    }
+    
+    button.auth:hover {
+      background: #219653;
+    }
+    
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    
+    li {
+      padding: 8px 0;
+      border-bottom: 1px dashed #eee;
+    }
+    
+    li:last-child {
+      border-bottom: none;
+    }
+    
+    .total {
+      font-weight: bold;
+      font-size: 1.1em;
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+      display: flex;
+      justify-content: space-between;
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    
+    .auth-form {
+      background: #f8f9fa;
+      border-radius: 6px;
+      padding: 15px;
+      margin-top: 15px;
+    }
+    
+    .error {
+      color: #e74c3c;
+      font-size: 0.9em;
+      margin-top: 5px;
+      display: none;
+    }
+    
+    .success {
+      color: #27ae60;
+      font-size: 0.9em;
+      margin-top: 5px;
+      display: none;
+    }
+    
+    @media (max-width: 600px) {
+      .products {
+        gap: 10px;
+      }
+      
+      .product-card {
+        min-width: 150px;
+        padding: 12px;
+      }
+      
+      button {
+        padding: 7px 10px;
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h2>🛍️ Shopping Cart</h2>
+  
+  <div class="card">
+    <div class="section-title">
+      <i class="fas fa-store"></i>
+      <h3>Products</h3>
+    </div>
+    
+    <div class="products">
+      <div class="product-card">
+        <div class="product-image">
+          <img src="images/laptop.jpg" alt="Laptop">
+        </div>
+        <div class="product-name">Laptop</div>
+        <div class="product-price">₱50,000</div>
+        <label for="qty-laptop">Qty:</label>
+        <input type="number" id="qty-laptop" value="1" min="1">
+        <button onclick="addToCart('Laptop', 50000, document.getElementById('qty-laptop').value)">
+          Add to Cart
+        </button>
+      </div>
+      
+      <div class="product-card">
+        <div class="product-image">
+          <img src="images/phone.jpg" alt="Phone">
+        </div>
+        <div class="product-name">Phone</div>
+        <div class="product-price">₱20,000</div>
+        <label for="qty-phone">Qty:</label>
+        <input type="number" id="qty-phone" value="1" min="1">
+        <button onclick="addToCart('Phone', 20000, document.getElementById('qty-phone').value)">
+          Add to Cart
+        </button>
+      </div>
+      
+      <div class="product-card">
+        <div class="product-image">
+          <img src="images/headphones.jpg" alt="Headphones">
+        </div>
+        <div class="product-name">Headphones</div>
+        <div class="product-price">₱5,000</div>
+        <label for="qty-headphones">Qty:</label>
+        <input type="number" id="qty-headphones" value="1" min="1">
+        <button onclick="addToCart('Headphones', 5000, document.getElementById('qty-headphones').value)">
+          Add to Cart
+        </button>
+      </div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 10px;">
+      <button class="secondary" onclick="showCart()" style="width: auto; padding: 8px 20px;">
+        View Cart (0 items)
+      </button>
+    </div>
+  </div>
+
+  <div class="card hidden" id="cart">
+    <div class="section-title">
+      <i class="fas fa-shopping-cart"></i>
+      <h3>Your Cart</h3>
+    </div>
+    
+    <ul id="cartItems"></ul>
+    
+    <div class="total">
+      <span>Total:</span>
+      <span>₱<span id="cartTotal">0</span></span>
+    </div>
+    
+    <div class="action-buttons">
+      <button onclick="checkout()">Proceed to Checkout</button>
+      <button class="secondary" onclick="hideCart()">Continue Shopping</button>
+    </div>
+  </div>
+
+  <div class="card hidden" id="checkout">
+    <div class="section-title">
+      <i class="fas fa-credit-card"></i>
+      <h3>Checkout</h3>
+    </div>
+    
+    <p><strong>Total Amount:</strong> ₱<span id="checkoutTotal">0</span></p>
+
+    <label for="paymentMethod">Payment Method</label>
+    <select id="paymentMethod" onchange="showPaymentRequirements()">
+      <option value="">-- Select Payment Method --</option>
+      <option value="credit">Credit Card</option>
+      <option value="paypal">PayPal</option>
+      <option value="gcash">GCash</option>
+    </select>
+    
+    <!-- Credit Card Authentication -->
+    <div id="creditAuth" class="auth-form hidden">
+      <label for="cardNumber">12-Digit Credit Card Number</label>
+      <input type="text" id="cardNumber" placeholder="1234 5678 9012" maxlength="16">
+      <div class="error" id="cardError">Please enter a valid 12-digit credit card number</div>
+      <div class="success" id="cardSuccess">Card number verified</div>
+    </div>
+    
+    <!-- PayPal Authentication -->
+    <div id="paypalAuth" class="auth-form hidden">
+      <label for="paypalEmail">PayPal Email Address</label>
+      <input type="email" id="paypalEmail" placeholder="your.email@example.com">
+      <div class="error" id="paypalError">Please enter a valid email address</div>
+      <div class="success" id="paypalSuccess">Email verified</div>
+    </div>
+    
+    <!-- GCash Authentication -->
+    <div id="gcashAuth" class="auth-form hidden">
+      <label for="gcashNumber">11-Digit GCash Mobile Number</label>
+      <input type="tel" id="gcashNumber" placeholder="09123456789" maxlength="11">
+      <div class="error" id="gcashError">Please enter a valid 11-digit GCash number (starts with 09)</div>
+      <div class="success" id="gcashSuccess">Mobile number verified</div>
+    </div>
+    
+    <div class="action-buttons" style="margin-top: 20px;">
+      <button id="payButton" onclick="processPayment()" disabled>
+        Complete Payment
+      </button>
+      <button class="secondary" onclick="hideCheckout()">Cancel</button>
+    </div>
+  </div>
+
+  <script>
+    let cart = [];
+    let cartItemCount = 0;
+    let paymentVerified = {
+      credit: false,
+      paypal: false,
+      gcash: false
+    };
+
+    function addToCart(name, price, quantity) {
+      quantity = parseInt(quantity);
+      
+      const existingItem = cart.find(item => item.name === name);
+      if (existingItem) {
+        existingItem.quantity += quantity;
+      } else {
+        cart.push({ name, price, quantity });
+      }
+      
+      cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+      document.querySelector('button[onclick*="showCart"]').textContent = 
+        `View Cart (${cartItemCount} item${cartItemCount !== 1 ? 's' : ''})`;
+      
+      alert(`${quantity} ${name}(s) added to cart!`);
+      renderCart();
+    }
+
+    function showCart() {
+      document.getElementById("cart").classList.remove("hidden");
+      document.getElementById("checkout").classList.add("hidden");
+      renderCart();
+    }
+
+    function hideCart() {
+      document.getElementById("cart").classList.add("hidden");
+    }
+
+    function renderCart() {
+      const cartList = document.getElementById("cartItems");
+      cartList.innerHTML = "";
+      
+      if (cart.length === 0) {
+        cartList.innerHTML = '<li style="text-align: center; color: #7f8c8d; padding: 20px 0;">Your cart is empty</li>';
+        document.getElementById("cartTotal").textContent = "0";
+        return;
+      }
+
+      let total = 0;
+      cart.forEach(item => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <div style="display: flex; justify-content: space-between;">
+            <span>${item.quantity} × ${item.name}</span>
+            <span>₱${(item.price * item.quantity).toLocaleString()}</span>
+          </div>
+        `;
+        cartList.appendChild(li);
+        total += item.price * item.quantity;
+      });
+
+      document.getElementById("cartTotal").textContent = total.toLocaleString();
+    }
+
+    function checkout() {
+      document.getElementById("cart").classList.add("hidden");
+      document.getElementById("checkout").classList.remove("hidden");
+      
+      const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      document.getElementById("checkoutTotal").textContent = total.toLocaleString();
+      
+      resetPaymentVerification();
+      document.getElementById("payButton").disabled = true;
+    }
+
+    function hideCheckout() {
+      document.getElementById("checkout").classList.add("hidden");
+      resetPaymentVerification();
+    }
+
+    function showPaymentRequirements() {
+      const method = document.getElementById("paymentMethod").value;
+      
+      document.getElementById("creditAuth").classList.add("hidden");
+      document.getElementById("paypalAuth").classList.add("hidden");
+      document.getElementById("gcashAuth").classList.add("hidden");
+      
+      resetPaymentVerification();
+      document.getElementById("payButton").disabled = true;
+      
+      if (method === "credit") {
+        document.getElementById("creditAuth").classList.remove("hidden");
+      } else if (method === "paypal") {
+        document.getElementById("paypalAuth").classList.remove("hidden");
+      } else if (method === "gcash") {
+        document.getElementById("gcashAuth").classList.remove("hidden");
+      }
+    }
+
+    function resetPaymentVerification() {
+      paymentVerified = { credit: false, paypal: false, gcash: false };
+      
+      document.getElementById("cardSuccess").style.display = "none";
+      document.getElementById("cardError").style.display = "none";
+      document.getElementById("paypalSuccess").style.display = "none";
+      document.getElementById("paypalError").style.display = "none";
+      document.getElementById("gcashSuccess").style.display = "none";
+      document.getElementById("gcashError").style.display = "none";
+      
+      document.getElementById("cardNumber").value = "";
+      document.getElementById("paypalEmail").value = "";
+      document.getElementById("gcashNumber").value = "";
+    }
+
+    function validateCreditCard() {
+      const cardInput = document.getElementById("cardNumber");
+      const cardNumber = cardInput.value.replace(/\D/g, ''); // Remove non-digits
+      
+      if (cardNumber.length === 12) {
+        document.getElementById("cardSuccess").style.display = "block";
+        document.getElementById("cardError").style.display = "none";
+        paymentVerified.credit = true;
+        enablePayButton();
+        return true;
+      } else {
+        document.getElementById("cardSuccess").style.display = "none";
+        document.getElementById("cardError").style.display = "block";
+        paymentVerified.credit = false;
+        disablePayButton();
+        return false;
+      }
+    }
+
+    function validatePayPal() {
+      const emailInput = document.getElementById("paypalEmail");
+      const email = emailInput.value.trim();
+      
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      
+      if (emailRegex.test(email)) {
+        document.getElementById("paypalSuccess").style.display = "block";
+        document.getElementById("paypalError").style.display = "none";
+        paymentVerified.paypal = true;
+        enablePayButton();
+        return true;
+      } else {
+        document.getElementById("paypalSuccess").style.display = "none";
+        document.getElementById("paypalError").style.display = "block";
+        paymentVerified.paypal = false;
+        disablePayButton();
+        return false;
+      }
+    }
+
+    function validateGCash() {
+      const mobileInput = document.getElementById("gcashNumber");
+      const mobile = mobileInput.value.replace(/\D/g, ''); // Remove non-digits
+      
+      if (mobile.length === 11 && mobile.startsWith('09')) {
+        document.getElementById("gcashSuccess").style.display = "block";
+        document.getElementById("gcashError").style.display = "none";
+        paymentVerified.gcash = true;
+        enablePayButton();
+        return true;
+      } else {
+        document.getElementById("gcashSuccess").style.display = "none";
+        document.getElementById("gcashError").style.display = "block";
+        paymentVerified.gcash = false;
+        disablePayButton();
+        return false;
+      }
+    }
+
+    function enablePayButton() {
+      const method = document.getElementById("paymentMethod").value;
+      if (paymentVerified[method]) {
+        document.getElementById("payButton").disabled = false;
+        document.getElementById("payButton").classList.add("auth");
+      }
+    }
+
+    function disablePayButton() {
+      document.getElementById("payButton").disabled = true;
+      document.getElementById("payButton").classList.remove("auth");
+    }
+
+    class PaymentStrategy {
+      pay(amount) { throw new Error("pay() must be implemented"); }
+    }
+
+    class CreditCardPayment extends PaymentStrategy {
+      constructor(cardNumber) {
+        super();
+        this.cardNumber = cardNumber;
+      }
+      
+      pay(amount) { 
+        const last4 = this.cardNumber.replace(/\D/g, '').slice(-4);
+        alert(`✅ Success! Paid ₱${amount.toLocaleString()} using Credit Card ending in ${last4}`); 
+      }
+    }
+
+    class PaypalPayment extends PaymentStrategy {
+      constructor(email) {
+        super();
+        this.email = email;
+      }
+      
+      pay(amount) { 
+        alert(`✅ Success! Paid ₱${amount.toLocaleString()} using PayPal (${this.email})`); 
+      }
+    }
+
+    class GCashPayment extends PaymentStrategy {
+      constructor(mobile) {
+        super();
+        this.mobile = mobile;
+      }
+      
+      pay(amount) { 
+        const last4 = this.mobile.replace(/\D/g, '').slice(-4);
+        alert(`✅ Success! Paid ₱${amount.toLocaleString()} using GCash (${this.mobile.replace(/\d(?=\d{4})/g, '*')})`); 
+      }
+    }
+
+    class PaymentContext {
+      setStrategy(strategy) { 
+        this.strategy = strategy; 
+      }
+      
+      pay(amount) {
+        if (!this.strategy) throw new Error("No payment strategy set!");
+        this.strategy.pay(amount);
+      }
+    }
+
+    function processPayment() {
+      const method = document.getElementById("paymentMethod").value;
+      const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      const context = new PaymentContext();
+
+      let authDetail = '';
+      
+      if (method === "credit") {
+        authDetail = document.getElementById("cardNumber").value;
+      } else if (method === "paypal") {
+        authDetail = document.getElementById("paypalEmail").value;
+      } else if (method === "gcash") {
+        authDetail = document.getElementById("gcashNumber").value;
+      }
+
+      switch (method) {
+        case "credit":
+          context.setStrategy(new CreditCardPayment(authDetail));
+          break;
+        case "paypal":
+          context.setStrategy(new PaypalPayment(authDetail));
+          break;
+        case "gcash":
+          context.setStrategy(new GCashPayment(authDetail));
+          break;
+      }
+
+      context.pay(total);
+      cart = []; 
+      cartItemCount = 0;
+      document.querySelector('button[onclick*="showCart"]').textContent = "View Cart (0 items)";
+      
+      document.getElementById("checkout").classList.add("hidden");
+      resetPaymentVerification();
+      renderCart();
+    }
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      renderCart();
+      document.querySelector('button[onclick*="showCart"]').textContent = "View Cart (0 items)";
+      
+      document.getElementById("cardNumber").addEventListener("input", validateCreditCard);
+      document.getElementById("paypalEmail").addEventListener("input", validatePayPal);
+      document.getElementById("gcashNumber").addEventListener("input", validateGCash);
+    });
+  </script>
+</body>
+</html>
